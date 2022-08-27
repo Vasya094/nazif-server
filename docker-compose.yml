@@ -26,8 +26,15 @@ services:
     container_name: server
     build:
       context: .
-    env_file:
-      - .development.env
+    # env_file:
+    #   - .development.env
+    environment:
+      - PORT=5000
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=nazif
+      - POSTGRES_PASSWORD=post
+      - POSTGRES_PORT=5432
     volumes:
       - .:/app
       - /app/node_modules
