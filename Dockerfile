@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
+RUN npm install --global rimraf
+
 RUN npm install --only=development
 
 COPY . .
