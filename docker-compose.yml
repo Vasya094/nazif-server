@@ -1,23 +1,6 @@
 version: '3.0'
 
 services:
-  server:
-    container_name: server
-    build:
-      context: .
-      target: development
-    env_file:
-      - .development.env
-    volumes:
-      - .:/app
-      - /app/node_modules
-    ports:
-      - 5000:5000
-      - 9229:9229
-    command: npm run start:dev
-    depends_on:
-      - postgres
-    restart: always
   postgres:
     container_name: postgres
     image: postgres:12
@@ -39,6 +22,22 @@ services:
       context: ./nginx
     ports:
       - "3050:80"
+  server:
+    container_name: server
+    build:
+      context: .
+    env_file:
+      - .development.env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - 5000:5000
+      - 9229:9229
+    command: npm run start:dev
+    depends_on:
+      - postgres
+    restart: always
 
 volumes:
   pgdata:
