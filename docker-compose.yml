@@ -4,6 +4,8 @@ services:
   postgres:
     container_name: postgres
     image: postgres:12
+    networks:
+      - mynet
     env_file:
       - .development.env
     environment:
@@ -13,21 +15,10 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
-  nginx:
-    depends_on:
-      - server
-    restart: always
-    build:
-      # dockerfile: Dockerfile.dev
-      context: ./nginx
-    ports:
-      - "3050:80"
   server:
     container_name: server
     build:
       context: .
-    # env_file:
-    #   - .development.env
     environment:
       - PORT=5000
       - POSTGRES_HOST=postgres
@@ -44,8 +35,13 @@ services:
     command: npm run start:dev
     depends_on:
       - postgres
+    networks:
+      - mynet
     restart: always
 
 volumes:
   pgdata:
 
+networks:
+  mynet:
+    driver: bridge
