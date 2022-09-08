@@ -17,6 +17,7 @@ services:
     restart: always
   server:
     container_name: server
+    image: rinatkhabib/ama-server
     build:
       context: .
     environment:
