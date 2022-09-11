@@ -3,14 +3,15 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
 import { ServicesModule } from './services/services.module';
 import { Service } from './services/services.model';
-import { RequestModule } from './requests/requests.module';
+import { ApplicationModule } from './applications/applications.module';
 import { UsersModule } from './users/users.module';
-import { Request } from './requests/requests.model';
+import { Application } from './applications/application.model';
 import { User } from './users/users.model';
+import { APP_FILTER } from '@nestjs/core';
+import { AllErrorsHandler } from './utils/all-errors-handler';
 
 @Module({
   controllers: [],
-  providers: [],
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV}.env`,
@@ -22,13 +23,19 @@ import { User } from './users/users.model';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [Service, Request, User],
+      models: [Service, Application, User],
       autoLoadModels: true,
       synchronize: true,
     }),
     ServicesModule,
-    RequestModule,
+    ApplicationModule,
     UsersModule,
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: AllErrorsHandler,
+    },
   ],
 })
 export class AppModule {}

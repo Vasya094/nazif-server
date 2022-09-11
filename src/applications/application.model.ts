@@ -8,21 +8,10 @@ import {
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from 'src/users/users.model';
-import { Location } from './dto/create-request.dto';
+import { CreateApplicationDto, Location } from './dto/create-application.dto';
 
-interface ServiceCreationAttrs {
-  title: string;
-  description: string;
-}
-
-// location: LocationModel
-// worker: UserModel
-// client: UserModel
-// createdAt: Date
-// updatedAt: Date
-
-@Table({ tableName: 'requests' })
-export class Request extends Model<Request, ServiceCreationAttrs> {
+@Table({ tableName: 'applications' })
+export class Application extends Model<Application, CreateApplicationDto> {
   @ApiProperty({
     example: 'e55cb6ea-24bd-11ed-861d-0242ac120002',
     description: 'Уникальный идентификатор',
@@ -35,28 +24,35 @@ export class Request extends Model<Request, ServiceCreationAttrs> {
   })
   id: number;
   @ApiProperty({
-    example: 'e55cb6ea-24bd-11ed-861d-0242ac120002',
-    description: 'Ссылка на исполнителя услуги',
+    example: `{
+      "lat": 37,
+      "lng": 60.57,
+      "address": "string"
+    }`,
+    description: 'Информация о местоположении',
   })
   @Column({ type: DataType.JSON })
   location: Location;
 
-  @ForeignKey(() => User)
-  @Column({ type: DataType.UUID })
-  workerUserId: string;
   @ApiProperty({
     example: 'e55cb6ea-24bd-11ed-861d-0242ac120002',
     description: 'Ссылка на исполнителя услуги',
   })
-  @BelongsTo(() => User)
-  worker: User;
   @ForeignKey(() => User)
   @Column({ type: DataType.UUID })
-  clientUserId: string;
+  workerUserId: string;
+
+  @BelongsTo(() => User, 'workerUserId')
+  worker: User;
+
   @ApiProperty({
     example: 'e55cb6ea-24bd-11ed-861d-0242ac120002',
     description: 'Ссылка на заказчика услуги',
   })
-  @BelongsTo(() => User)
+  @ForeignKey(() => User)
+  @Column({ type: DataType.UUID })
+  clientUserId: string;
+
+  @BelongsTo(() => User, 'clientUserId')
   client: User;
 }

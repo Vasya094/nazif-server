@@ -2,9 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from './users.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserDto } from './dto/create-user.dto';
-import { from, map, of } from 'rxjs';
 import { Op } from 'sequelize';
-import { getShortenedUsersInfo } from 'src/utils/user';
 
 @Injectable()
 export class UsersService {
@@ -16,32 +14,27 @@ export class UsersService {
 
   getAllUsers(limit: number, offset = 0, search = '') {
     const sqlSearch = '%'.concat(search).concat('%');
-    return from(
-      this.userRepository.findAndCountAll({
-        limit,
-        offset,
-        attributes: { exclude: ['password', 'refreshToken'] },
-        where: {
-          name: {
-            [Op.like]: sqlSearch,
-          },
+    return this.userRepository.findAndCountAll({
+      limit,
+      offset,
+      attributes: { exclude: ['password', 'refreshToken'] },
+      where: {
+        fullName: {
+          [Op.like]: sqlSearch,
         },
-        distinct: true,
-      }),
-    ).pipe(
-      map((res) => ({
-        total: res.count,
-        data: getShortenedUsersInfo(res.rows),
-      })),
-    );
+      },
+      distinct: true,
+    });
   }
 
-  getUserById(id: number) {
-    return from(
-      this.userRepository.findByPk(id, {
-        attributes: { exclude: ['password'] },
-      }),
-    );
+  getUserById(id: string) {
+    return this.userRepository.findByPk(id, {
+      attributes: { exclude: ['password'] },
+    });
+  }
+
+  async deleteUser(id: string) {
+    return await this.userRepository.destroy({ where: { id } });
   }
 
   async getUserByEmail(email: string) {
@@ -50,8 +43,8 @@ export class UsersService {
     });
   }
 
-  async updateUser(id: number, dto: CreateUserDto) {
-    return of(this.userRepository.update(dto, { where: { id } }));
+  async updateUser(id: string, dto: CreateUserDto) {
+    return this.userRepository.update(dto, { where: { id } });
   }
 
   async updateUserRefreshToken(id: number, refreshToken) {
@@ -61,7 +54,7 @@ export class UsersService {
     );
   }
 
-  async clearRefreshToken(userId: number) {
+  async clearRefreshToken(userId: string) {
     await this.userRepository.update(
       { refreshToken: null },
       {

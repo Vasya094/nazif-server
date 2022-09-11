@@ -1,11 +1,21 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import {
+  BeforeCreate,
+  BeforeUpdate,
+  Column,
+  DataType,
+  HasMany,
+  Model,
+  Table,
+} from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
+import { Application } from 'src/applications/application.model';
 
 export interface UserCreationAttributes {
   email?: string;
   roles?: string[];
   password?: string;
-  name: string;
+  firstName: string;
+  lastName: string;
 }
 
 @Table({ timestamps: false, tableName: 'users' })
@@ -37,24 +47,59 @@ export class User extends Model<User, UserCreationAttributes> {
   })
   password: string;
 
-  @ApiProperty({ example: 'Name', description: 'Имя пользователя' })
+  @ApiProperty({ example: 'Vasya', description: 'Имя пользователя' })
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  firstName: string;
+
+  @ApiProperty({
+    example: '509023',
+    description: 'Телефонный номер пользователя',
+  })
   @Column({
     type: DataType.STRING,
     unique: true,
+    allowNull: true,
+  })
+  phone: string;
+
+  @ApiProperty({
+    example: 'Vasya Petrov',
+    description: 'Полное имя пользователя',
+  })
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  fullName: string;
+
+  @ApiProperty({ example: 'Petrov', description: 'Фамилия пользователя' })
+  @Column({
+    type: DataType.STRING,
     allowNull: false,
   })
-  name: string;
+  lastName: string;
+
+  @BeforeCreate
+  @BeforeUpdate
+  static addFullName(user: User): void {
+    if (user.firstName && user.lastName) {
+      user.fullName = `${user.firstName} ${user.lastName}`;
+    }
+  }
 
   @ApiProperty({ example: '[Role]', description: 'Роли пользователя' })
   @Column({ type: DataType.ARRAY(DataType.STRING) })
   roles: string[];
 
-  // @Column({
-  //   type: DataType.STRING,
-  //   allowNull: true,
-  // })
-  // @HasMany(() => Request)
-  // requests: Request[];
+  @HasMany(() => Application)
+  acceptedApplications: Application[];
+
+  @HasMany(() => Application)
+  createdApplications: Application[];
+
   @Column({
     type: DataType.STRING,
     allowNull: true,

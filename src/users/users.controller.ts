@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -20,23 +29,30 @@ export class UsersController {
   @ApiResponse({ status: 200, type: [User] })
   @Get()
   getAllUsers(
-    @Query('_limit') limit: number,
-    @Query('_offset') offset: number,
-    @Query('_search') search: string,
+    @Query('limit') limit: number,
+    @Query('offset') offset: number,
+    @Query('search') search: string,
   ) {
     return this.userService.getAllUsers(limit, offset, search);
   }
 
-  @ApiOperation({ summary: 'Получение пользователей' })
+  @ApiOperation({ summary: 'Получение пользователя по ID' })
   @Get(':id')
-  getUserById(@Param('id') id: number) {
+  getUserById(@Param('id') id: string) {
     return this.userService.getUserById(id);
   }
 
-  @ApiOperation({ summary: 'Получение пользователей' })
+  @ApiOperation({ summary: 'Редактирование информации о пользователе' })
   @ApiResponse({ status: 200, type: [User] })
   @Put(':id')
-  updateUser(@Param('id') id: number, @Body() dto: CreateUserDto) {
+  updateUser(@Param('id') id: string, @Body() dto: CreateUserDto) {
     return this.userService.updateUser(id, dto);
+  }
+
+  @ApiOperation({ summary: 'Удаление пользователя' })
+  @ApiResponse({ status: 200 })
+  @Delete(':id')
+  deleteUser(@Param('id') id: string) {
+    return this.userService.deleteUser(id);
   }
 }

@@ -7,7 +7,7 @@ export interface Location {
   address: string;
 }
 
-export class CreateRequestDto {
+export class CreateApplicationDto {
   @ApiProperty({
     example: `{
     "lat": 37,
